@@ -58,3 +58,6 @@ ENV/
 .temp/
 temp/
 tmp/
+
+# Submodules/External projects
+campus-connect/
