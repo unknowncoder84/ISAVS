@@ -1,0 +1,43 @@
+# FastAPI and Server
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# Database - Using asyncpg for async PostgreSQL (Supabase compatible)
+sqlalchemy==2.0.25
+asyncpg==0.29.0
+aiosqlite==0.19.0
+greenlet==3.0.3
+supabase>=2.0.0
+gotrue>=2.0.0
+
+# Pydantic
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Face Recognition and Computer Vision
+opencv-python==4.9.0.80
+mediapipe==0.10.14  # Updated to latest for Tasks API
+numpy==1.26.3
+Pillow==10.2.0
+scikit-image==0.24.0
+deepface==0.0.93  # Using DeepFace with Facenet for 128-d embeddings + Emotion Detection
+onnxruntime==1.23.2  # For ONNX model inference (emotion detection)
+
+# Vector Search for Fast Similarity Matching
+faiss-cpu==1.9.0
+
+# Scientific Computing for Sensor Fusion
+scipy==1.11.4
+
+# Cache (Redis - optional)
+redis==5.0.1
+
+# Testing
+pytest==7.4.4
+pytest-asyncio==0.23.3
+hypothesis==6.92.2
+httpx==0.26.0
+
+# Utilities
+python-dotenv==1.0.0

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: system-ui;
+            background: #0f0d1a;
+            color: white;
+        }
+        .box {
+            padding: 30px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #3B82F6;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #3B82F6;
+            margin: 0 0 20px 0;
+        }
+        button {
+            padding: 12px 24px;
+            background: #3B82F6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .status {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>✅ Frontend Server Working!</h1>
+        <p>If you can see this page, the Vite dev server is running correctly on port 6002.</p>
+        
+        <div class="status">
+            <strong>Server Status:</strong>
+            <div>Frontend: <span class="success">✅ Running on port 6002</span></div>
+            <div>Backend: <span id="backend-status">⏳ Testing...</span></div>
+        </div>
+
+        <button onclick="testBackend()">Test Backend Connection</button>
+        <button onclick="goToApp()">Go to React App</button>
+        <button onclick="clearAndReload()">Clear Cache & Reload</button>
+
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        const result = document.getElementById('result');
+        const backendStatus = document.getElementById('backend-status');
+
+        async function testBackend() {
+            result.innerHTML = '<p style="color: #f59e0b;">Testing backend...</p>';
+            try {
+                // Test through proxy
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                result.innerHTML = '<p class="success">✅ Backend connected via proxy!</p>';
+                backendStatus.innerHTML = '<span class="success">✅ Connected</span>';
+            } catch (error) {
+                result.innerHTML = '<p class="error">❌ Proxy failed: ' + error.message + '</p>';
+                backendStatus.innerHTML = '<span class="error">❌ Failed</span>';
+            }
+        }
+
+        function goToApp() {
+            window.location.href = '/';
+        }
+
+        function clearAndReload() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/?t=' + Date.now();
+        }
+
+        // Auto-test backend on load
+        setTimeout(testBackend, 500);
+    </script>
+</body>
+</html>

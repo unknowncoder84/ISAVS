@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAVS Diagnostic</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0f0d1a;
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #3B82F6 0%, #A78BFA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status {
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .success {
+            color: #10b981;
+        }
+        .warning {
+            color: #f59e0b;
+        }
+        .error {
+            color: #ef4444;
+        }
+        button, a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #3B82F6 0%, #A78BFA 100%);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            margin: 10px 5px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover, a:hover {
+            opacity: 0.9;
+        }
+        .code {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        #log {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 ISAVS Diagnostic Tool</h1>
+        
+        <div class="status">
+            <h2 class="success">✅ Server Status: Running</h2>
+            <p>Frontend: <strong>http://localhost:6003</strong></p>
+            <p>Backend: <strong>http://localhost:6000</strong></p>
+        </div>
+
+        <div class="status">
+            <h3>🧪 Quick Tests</h3>
+            <button onclick="testBackend()">Test Backend API</button>
+            <button onclick="testReactApp()">Test React App</button>
+            <button onclick="clearCache()">Clear Browser Cache</button>
+            <div id="testResults" style="margin-top: 15px;"></div>
+        </div>
+
+        <div class="status">
+            <h3>📋 Console Log</h3>
+            <div id="log" class="code"></div>
+        </div>
+
+        <div class="status">
+            <h3>🚀 Quick Actions</h3>
+            <a href="/">Go to Home Page</a>
+            <a href="/login/portal">Go to Login Portal</a>
+            <a href="/login">Go to Admin Login</a>
+        </div>
+
+        <div class="status">
+            <h3>💡 Troubleshooting Steps</h3>
+            <ol style="color: #a1a1aa; line-height: 1.8;">
+                <li>Press <strong>Ctrl + Shift + Delete</strong> to clear browser cache</li>
+                <li>Try opening in <strong>Incognito/Private mode</strong></li>
+                <li>Try a different browser (Chrome, Edge, Firefox)</li>
+                <li>Check browser console (F12) for errors</li>
+                <li>Make sure you're on <strong>http://localhost:6003</strong> (not 6002)</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const log = document.getElementById('log');
+        const results = document.getElementById('testResults');
+
+        function addLog(msg, type = 'info') {
+            const color = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#a1a1aa';
+            log.innerHTML += `<div style="color: ${color};">${new Date().toLocaleTimeString()}: ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        async function testBackend() {
+            addLog('Testing backend connection...');
+            results.innerHTML = '<p style="color: #f59e0b;">Testing...</p>';
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                addLog('✅ Backend connected: ' + JSON.stringify(data), 'success');
+                results.innerHTML = '<p class="success">✅ Backend API is working!</p>';
+            } catch (error) {
+                addLog('❌ Backend error: ' + error.message, 'error');
+                results.innerHTML = '<p class="error">❌ Backend connection failed. Trying direct...</p>';
+                
+                // Try direct connection
+                try {
+                    const directResponse = await fetch('http://localhost:6000/health');
+                    const directData = await directResponse.json();
+                    addLog('✅ Backend connected directly: ' + JSON.stringify(directData), 'success');
+                    results.innerHTML = '<p class="success">✅ Backend is working! (Direct connection)</p>';
+                } catch (directError) {
+                    addLog('❌ Direct connection also failed: ' + directError.message, 'error');
+                    results.innerHTML = '<p class="error">❌ Backend connection failed (CORS issue)</p>';
+                }
+            }
+        }
+
+        async function testReactApp() {
+            addLog('Testing React app...');
+            results.innerHTML = '<p style="color: #f59e0b;">Redirecting to app...</p>';
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 500);
+        }
+
+        function clearCache() {
+            addLog('Clearing cache and reloading...');
+            results.innerHTML = '<p style="color: #f59e0b;">Clearing cache...</p>';
+            
+            // Clear localStorage
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Force reload without cache
+            setTimeout(() => {
+                window.location.href = '/?nocache=' + Date.now();
+                window.location.reload(true);
+            }, 500);
+        }
+
+        // Auto-test on load
+        addLog('Diagnostic page loaded');
+        addLog('Current URL: ' + window.location.href);
+        addLog('User Agent: ' + navigator.userAgent);
+        
+        // Test backend automatically
+        setTimeout(testBackend, 1000);
+    </script>
+</body>
+</html>

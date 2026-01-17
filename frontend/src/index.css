@@ -1,0 +1,461 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== ISAVS Theme - Blue/Purple Gradient (Campus Connect Inspired) ===== */
+:root {
+  /* Primary Colors - Blue/Purple Gradient */
+  --primary: #3B82F6;        /* Blue - hsl(217 91% 60%) */
+  --primary-light: #60A5FA;
+  --primary-dark: #2563EB;
+  --secondary: #8B5CF6;      /* Purple - hsl(248 53% 58%) */
+  --accent: #A78BFA;         /* Light Purple - hsl(263 70% 70%) */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  
+  /* Backgrounds */
+  --bg-dark: #0f0d1a;
+  --bg-card: #1a1625;
+  --bg-card-hover: #231e30;
+  
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --border: rgba(255, 255, 255, 0.08);
+  
+  /* Gradient tokens */
+  --gradient-primary: linear-gradient(135deg, #3B82F6 0%, #A78BFA 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
+  --gradient-card: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(167, 139, 250, 0.08) 100%);
+  
+  /* Shadows */
+  --shadow-soft: 0 4px 20px -4px rgba(59, 130, 246, 0.15);
+  --shadow-card: 0 2px 12px -2px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 30px rgba(59, 130, 246, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+/* ===== Gradient Utilities ===== */
+.gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.gradient-primary-hover:hover {
+  background: var(--gradient-primary-hover);
+}
+
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-card {
+  background: var(--gradient-card);
+}
+
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+.shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+.glass-card {
+  background: rgba(26, 22, 37, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.5);
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 1; }
+  100% { transform: scale(1.2); opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes scan-line {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
+
+@keyframes ripple {
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Animation Classes */
+.animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+.animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
+.animate-fadeInDown { animation: fadeInDown 0.5s ease-out forwards; }
+.animate-slideInLeft { animation: slideInLeft 0.5s ease-out forwards; }
+.animate-slideInRight { animation: slideInRight 0.5s ease-out forwards; }
+.animate-scaleIn { animation: scaleIn 0.3s ease-out forwards; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-pulse-ring { animation: pulse-ring 1.5s ease-out infinite; }
+.animate-gradient { background-size: 200% 200%; animation: gradient-shift 3s ease infinite; }
+
+/* Stagger animations */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+/* ===== Glass Effects ===== */
+.glass {
+  background: rgba(26, 22, 37, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ===== Card Styles ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+}
+
+.card-light {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== Button Styles ===== */
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+  background: var(--gradient-primary-hover);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--primary-light);
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* ===== Input Styles ===== */
+.input-dark {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: white;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.input-dark::placeholder {
+  color: var(--text-muted);
+}
+
+.input-dark:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.input-light {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: #1f2937;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.input-light:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ===== OTP Input ===== */
+.otp-input {
+  width: 52px;
+  height: 60px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.otp-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.otp-input-light {
+  width: 52px;
+  height: 60px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  color: #1f2937;
+  transition: all 0.2s ease;
+}
+
+.otp-input-light:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+}
+
+/* ===== Face Scan Animation ===== */
+.face-scan-container {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.face-scan-ring {
+  position: absolute;
+  inset: -4px;
+  border: 3px solid transparent;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  animation: scan-line 2s ease-in-out infinite;
+}
+
+/* ===== Stats Card ===== */
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Status Badges ===== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.badge-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.badge-info {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+}
+
+/* ===== Progress Ring ===== */
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+/* ===== Smooth transitions ===== */
+button, a, input, select, textarea {
+  transition: all 0.2s ease;
+}
+
+/* ===== Mobile touch feedback ===== */
+@media (hover: none) {
+  button:active, a:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+/* ===== Safe area for mobile ===== */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* ===== Selection ===== */
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: white;
+}
