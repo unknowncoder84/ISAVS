@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      outDir: isTeacher ? 'dist-teacher' : isStudent ? 'dist-student' : 'dist',
+      outDir: 'dist',  // Always output to 'dist' for Netlify compatibility
       sourcemap: false,
       rollupOptions: {
         input: htmlInput,
