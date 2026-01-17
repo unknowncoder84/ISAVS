@@ -1,7 +1,8 @@
 # Netlify Configuration for ISAVS Frontend
+# NOTE: This is the default config. Use netlify-teacher.toml or netlify-student.toml for dual portal
 
 [build]
-  command = "npm run build"
+  command = "npm run build:teacher"
   publish = "dist"
   
 [build.environment]
