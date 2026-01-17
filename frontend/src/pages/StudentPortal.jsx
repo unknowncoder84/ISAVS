@@ -22,46 +22,113 @@ const StudentPortal = () => {
   const [demoOtp, setDemoOtp] = useState(null);
   const [studentName, setStudentName] = useState('');
   const [gpsDistance, setGpsDistance] = useState(null);
+  const [gpsFailureCount, setGpsFailureCount] = useState(0);
+  const [wifiSsid, setWifiSsid] = useState(null);
+  const [gpsAccuracy, setGpsAccuracy] = useState(null);
 
-  // GPS Check - runs when student enters session
+  // GPS Check - runs when student enters session with HIGH ACCURACY
   const checkGPS = useCallback(() => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userLat = position.coords.latitude;
           const userLon = position.coords.longitude;
+          const accuracy = position.coords.accuracy; // GPS accuracy in meters
           
-          setLocation({ latitude: userLat, longitude: userLon });
+          setLocation({ 
+            latitude: userLat, 
+            longitude: userLon,
+            accuracy: accuracy 
+          });
+          setGpsAccuracy(accuracy);
           
           // Calculate distance (mock - in production, compare with classroom coords)
           // For demo, we'll simulate distance
           const mockDistance = Math.random() * 100; // 0-100 meters
           setGpsDistance(mockDistance);
           
-          if (mockDistance > 50) {
-            setLocationError(`You are ${mockDistance.toFixed(0)}m from classroom. Must be within 50m.`);
-            setError('GPS Check Failed: Too far from classroom');
+          // INCREASED THRESHOLD: 100 meters (was 50m) to account for indoor GPS drift
+          const MAX_DISTANCE = 100;
+          
+          if (mockDistance > MAX_DISTANCE) {
+            const newFailureCount = gpsFailureCount + 1;
+            setGpsFailureCount(newFailureCount);
+            
+            // After 2 GPS failures, allow WiFi fallback
+            if (newFailureCount >= 2) {
+              setLocationError(`GPS failed ${newFailureCount} times. You can verify using WiFi instead.`);
+              setError('GPS Check Failed: Try WiFi verification');
+            } else {
+              setLocationError(`You are ${mockDistance.toFixed(0)}m from classroom. Must be within ${MAX_DISTANCE}m. (Attempt ${newFailureCount}/2)`);
+              setError('GPS Check Failed: Too far from classroom');
+            }
           } else {
             setLocationError(null);
+            setGpsFailureCount(0); // Reset on success
             setStep('otp');
           }
         },
         (error) => {
           console.error('Geolocation error:', error);
-          setLocationError('Location access denied');
-          setError('GPS Check Failed: Enable location services');
+          const newFailureCount = gpsFailureCount + 1;
+          setGpsFailureCount(newFailureCount);
+          
+          if (newFailureCount >= 2) {
+            setLocationError(`GPS failed ${newFailureCount} times. You can verify using WiFi instead.`);
+            setError('GPS Check Failed: Try WiFi verification');
+          } else {
+            setLocationError(`Location access denied (Attempt ${newFailureCount}/2)`);
+            setError('GPS Check Failed: Enable location services');
+          }
         },
         {
-          enableHighAccuracy: true,
+          enableHighAccuracy: true,  // HIGH ACCURACY MODE - uses GPS instead of network location
           timeout: 10000,
-          maximumAge: 0
+          maximumAge: 0  // Don't use cached location
         }
       );
     } else {
       setLocationError('Geolocation not supported');
       setError('GPS Check Failed: Browser not supported');
     }
-  }, []);
+  }, [gpsFailureCount]);
+
+  // WiFi Fallback Verification
+  const checkWiFiFallback = useCallback(async () => {
+    try {
+      // Note: Browser WiFi API is limited for security reasons
+      // In production, this would be handled by a native mobile app
+      // For web, we'll prompt user to enter WiFi SSID manually
+      const ssid = prompt('Enter your WiFi network name (SSID):');
+      
+      if (ssid) {
+        setWifiSsid(ssid);
+        
+        // Verify with backend
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/verify-wifi`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            session_id: sessionId,
+            wifi_ssid: ssid 
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.verified) {
+          setLocationError(null);
+          setError(null);
+          setStep('otp');
+        } else {
+          setError('WiFi network not recognized. Please connect to college WiFi.');
+        }
+      }
+    } catch (err) {
+      console.error('WiFi verification error:', err);
+      setError('WiFi verification failed');
+    }
+  }, [sessionId]);
 
   // Handle Session ID Submit
   const handleSessionSubmit = async () => {
@@ -308,29 +375,53 @@ const StudentPortal = () => {
                 <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 mb-4">
                   <p className="font-semibold mb-1">Location Check Failed</p>
                   <p className="text-sm">{locationError}</p>
+                  {gpsAccuracy && (
+                    <p className="text-xs mt-2 text-zinc-500">GPS Accuracy: ±{gpsAccuracy.toFixed(0)}m</p>
+                  )}
                 </div>
               ) : gpsDistance !== null ? (
                 <div className={`p-4 rounded-xl mb-4 ${
-                  gpsDistance <= 50
+                  gpsDistance <= 100
                     ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
                     : 'bg-red-500/10 border border-red-500/20 text-red-400'
                 }`}>
                   <p className="font-semibold mb-1">
-                    {gpsDistance <= 50 ? '✓ Within Range' : '✗ Too Far'}
+                    {gpsDistance <= 100 ? '✓ Within Range' : '✗ Too Far'}
                   </p>
-                  <p className="text-sm">Distance: {gpsDistance.toFixed(0)}m from classroom</p>
+                  <p className="text-sm">Distance: {gpsDistance.toFixed(0)}m from classroom (Max: 100m)</p>
+                  {gpsAccuracy && (
+                    <p className="text-xs mt-2 text-zinc-500">GPS Accuracy: ±{gpsAccuracy.toFixed(0)}m</p>
+                  )}
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2 text-zinc-400">
                   <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></div>
-                  <span>Checking location...</span>
+                  <span>Checking location with high accuracy GPS...</span>
                 </div>
               )}
 
               {locationError && (
-                <button
-                  onClick={checkGPS}
-                  className="w-full py-3 bg-indigo-500 text-white rounded-xl font-semibold hover:bg-indigo-600 transition"
+                <div className="space-y-3">
+                  <button
+                    onClick={checkGPS}
+                    className="w-full py-3 bg-indigo-500 text-white rounded-xl font-semibold hover:bg-indigo-600 transition"
+                  >
+                    🔄 Retry GPS Check ({gpsFailureCount}/2)
+                  </button>
+                  
+                  {gpsFailureCount >= 2 && (
+                    <button
+                      onClick={checkWiFiFallback}
+                      className="w-full py-3 bg-cyan-500 text-white rounded-xl font-semibold hover:bg-cyan-600 transition flex items-center justify-center gap-2"
+                    >
+                      <span>📶</span>
+                      <span>Verify Using WiFi Instead</span>
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {!locationError && gpsDistance !== null && gpsDistance <= 100 && (
                 >
                   Retry GPS Check
                 </button>
