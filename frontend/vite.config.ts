@@ -14,14 +14,11 @@ export default defineConfig(({ mode }) => {
   // Port 2001: Teacher Dashboard (Session Management, Real-time Monitoring)
   // Port 2002: Student Kiosk (GPS Check, OTP Entry, Face Verification)
   let port = 5173 // Default unified app
-  let htmlInput = './index.html'
   
   if (isTeacher) {
     port = 2001
-    htmlInput = './teacher.html'
   } else if (isStudent) {
     port = 2002
-    htmlInput = './student.html'
   }
   
   return {
@@ -35,7 +32,7 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',  // Always output to 'dist' for Netlify compatibility
       sourcemap: false,
       rollupOptions: {
-        input: htmlInput,
+        input: './index.html',  // Always use index.html for builds
       },
     },
     server: {
