@@ -20,9 +20,19 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_supabase_id ON users(supabase_user_id);
-CREATE INDEX idx_users_role ON users(role);
+-- Create indexes only if they don't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_users_email') THEN
+        CREATE INDEX idx_users_email ON users(email);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_users_supabase_id') THEN
+        CREATE INDEX idx_users_supabase_id ON users(supabase_user_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_users_role') THEN
+        CREATE INDEX idx_users_role ON users(role);
+    END IF;
+END $$;
 
 -- ============================================
 -- 2. CLASSES TABLE
@@ -36,8 +46,15 @@ CREATE TABLE IF NOT EXISTS classes (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_classes_class_id ON classes(class_id);
-CREATE INDEX idx_classes_teacher_id ON classes(teacher_id);
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_classes_class_id') THEN
+        CREATE INDEX idx_classes_class_id ON classes(class_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_classes_teacher_id') THEN
+        CREATE INDEX idx_classes_teacher_id ON classes(teacher_id);
+    END IF;
+END $$;
 
 -- ============================================
 -- 3. STUDENTS TABLE (Core Entity)
@@ -57,9 +74,18 @@ CREATE TABLE IF NOT EXISTS students (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_students_student_id ON students(student_id_card_number);
-CREATE INDEX idx_students_user_id ON students(user_id);
-CREATE INDEX idx_students_approval_status ON students(approval_status);
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_students_student_id') THEN
+        CREATE INDEX idx_students_student_id ON students(student_id_card_number);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_students_user_id') THEN
+        CREATE INDEX idx_students_user_id ON students(user_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_students_approval_status') THEN
+        CREATE INDEX idx_students_approval_status ON students(approval_status);
+    END IF;
+END $$;
 
 -- ============================================
 -- 4. ATTENDANCE SESSIONS TABLE
@@ -75,11 +101,24 @@ CREATE TABLE IF NOT EXISTS attendance_sessions (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_sessions_session_id ON attendance_sessions(session_id);
-CREATE INDEX idx_sessions_class_id ON attendance_sessions(class_id);
-CREATE INDEX idx_sessions_teacher_id ON attendance_sessions(teacher_id);
-CREATE INDEX idx_sessions_status ON attendance_sessions(status);
-CREATE INDEX idx_sessions_created_at ON attendance_sessions(created_at);
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_sessions_session_id') THEN
+        CREATE INDEX idx_sessions_session_id ON attendance_sessions(session_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_sessions_class_id') THEN
+        CREATE INDEX idx_sessions_class_id ON attendance_sessions(class_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_sessions_teacher_id') THEN
+        CREATE INDEX idx_sessions_teacher_id ON attendance_sessions(teacher_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_sessions_status') THEN
+        CREATE INDEX idx_sessions_status ON attendance_sessions(status);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_sessions_created_at') THEN
+        CREATE INDEX idx_sessions_created_at ON attendance_sessions(created_at);
+    END IF;
+END $$;
 
 -- ============================================
 -- 5. ATTENDANCE TABLE (Verification Records)
@@ -95,14 +134,35 @@ CREATE TABLE IF NOT EXISTS attendance (
     distance_meters FLOAT,
     emotion_detected VARCHAR(50),
     emotion_confidence FLOAT,
-    timestamp TIMESTAMP DEFAULT NOW(),
-    UNIQUE(student_id, session_id)  -- Prevent duplicate attendance for same session
+    timestamp TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_attendance_student_id ON attendance(student_id);
-CREATE INDEX idx_attendance_session_id ON attendance(session_id);
-CREATE INDEX idx_attendance_status ON attendance(verification_status);
-CREATE INDEX idx_attendance_timestamp ON attendance(timestamp);
+-- Add unique constraint if it doesn't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'attendance_student_id_session_id_key'
+    ) THEN
+        ALTER TABLE attendance ADD CONSTRAINT attendance_student_id_session_id_key UNIQUE(student_id, session_id);
+    END IF;
+END $$;
+
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_attendance_student_id') THEN
+        CREATE INDEX idx_attendance_student_id ON attendance(student_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_attendance_session_id') THEN
+        CREATE INDEX idx_attendance_session_id ON attendance(session_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_attendance_status') THEN
+        CREATE INDEX idx_attendance_status ON attendance(verification_status);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_attendance_timestamp') THEN
+        CREATE INDEX idx_attendance_timestamp ON attendance(timestamp);
+    END IF;
+END $$;
 
 -- ============================================
 -- 6. ANOMALIES TABLE (Security Alerts)
@@ -120,11 +180,24 @@ CREATE TABLE IF NOT EXISTS anomalies (
     timestamp TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_anomalies_student_id ON anomalies(student_id);
-CREATE INDEX idx_anomalies_session_id ON anomalies(session_id);
-CREATE INDEX idx_anomalies_type ON anomalies(anomaly_type);
-CREATE INDEX idx_anomalies_reviewed ON anomalies(reviewed);
-CREATE INDEX idx_anomalies_timestamp ON anomalies(timestamp);
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_anomalies_student_id') THEN
+        CREATE INDEX idx_anomalies_student_id ON anomalies(student_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_anomalies_session_id') THEN
+        CREATE INDEX idx_anomalies_session_id ON anomalies(session_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_anomalies_type') THEN
+        CREATE INDEX idx_anomalies_type ON anomalies(anomaly_type);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_anomalies_reviewed') THEN
+        CREATE INDEX idx_anomalies_reviewed ON anomalies(reviewed);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_anomalies_timestamp') THEN
+        CREATE INDEX idx_anomalies_timestamp ON anomalies(timestamp);
+    END IF;
+END $$;
 
 -- ============================================
 -- 7. OTP CACHE TABLE (For OTP Management)
@@ -137,12 +210,29 @@ CREATE TABLE IF NOT EXISTS otp_cache (
     otp VARCHAR(4) NOT NULL,
     resend_attempts INTEGER DEFAULT 0,
     expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    UNIQUE(session_id, student_id_card_number)
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_otp_session_student ON otp_cache(session_id, student_id_card_number);
-CREATE INDEX idx_otp_expires_at ON otp_cache(expires_at);
+-- Add unique constraint if it doesn't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'otp_cache_session_id_student_id_card_number_key'
+    ) THEN
+        ALTER TABLE otp_cache ADD CONSTRAINT otp_cache_session_id_student_id_card_number_key UNIQUE(session_id, student_id_card_number);
+    END IF;
+END $$;
+
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_otp_session_student') THEN
+        CREATE INDEX idx_otp_session_student ON otp_cache(session_id, student_id_card_number);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_otp_expires_at') THEN
+        CREATE INDEX idx_otp_expires_at ON otp_cache(expires_at);
+    END IF;
+END $$;
 
 -- ============================================
 -- 8. ACCOUNT LOCKS TABLE (Security)
@@ -157,8 +247,15 @@ CREATE TABLE IF NOT EXISTS account_locks (
     unlocked_at TIMESTAMP
 );
 
-CREATE INDEX idx_locks_student_id ON account_locks(student_id_card_number);
-CREATE INDEX idx_locks_expires_at ON account_locks(expires_at);
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_locks_student_id') THEN
+        CREATE INDEX idx_locks_student_id ON account_locks(student_id_card_number);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_locks_expires_at') THEN
+        CREATE INDEX idx_locks_expires_at ON account_locks(expires_at);
+    END IF;
+END $$;
 
 -- ============================================
 -- 9. CLASS ENROLLMENTS TABLE (Student-Class Mapping)
@@ -167,12 +264,29 @@ CREATE TABLE IF NOT EXISTS class_enrollments (
     id SERIAL PRIMARY KEY,
     class_id INTEGER NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
     student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
-    enrolled_at TIMESTAMP DEFAULT NOW(),
-    UNIQUE(class_id, student_id)
+    enrolled_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_enrollments_class_id ON class_enrollments(class_id);
-CREATE INDEX idx_enrollments_student_id ON class_enrollments(student_id);
+-- Add unique constraint if it doesn't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'class_enrollments_class_id_student_id_key'
+    ) THEN
+        ALTER TABLE class_enrollments ADD CONSTRAINT class_enrollments_class_id_student_id_key UNIQUE(class_id, student_id);
+    END IF;
+END $$;
+
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_enrollments_class_id') THEN
+        CREATE INDEX idx_enrollments_class_id ON class_enrollments(class_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_enrollments_student_id') THEN
+        CREATE INDEX idx_enrollments_student_id ON class_enrollments(student_id);
+    END IF;
+END $$;
 
 -- ============================================
 -- 10. AUDIT LOG TABLE (System Activity Tracking)
@@ -189,10 +303,21 @@ CREATE TABLE IF NOT EXISTS audit_log (
     timestamp TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_audit_user_id ON audit_log(user_id);
-CREATE INDEX idx_audit_action ON audit_log(action);
-CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
-CREATE INDEX idx_audit_timestamp ON audit_log(timestamp);
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_audit_user_id') THEN
+        CREATE INDEX idx_audit_user_id ON audit_log(user_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_audit_action') THEN
+        CREATE INDEX idx_audit_action ON audit_log(action);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_audit_entity') THEN
+        CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_audit_timestamp') THEN
+        CREATE INDEX idx_audit_timestamp ON audit_log(timestamp);
+    END IF;
+END $$;
 
 -- ============================================
 -- VIEWS FOR REPORTING
@@ -305,17 +430,29 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_students_updated_at BEFORE UPDATE ON students
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_classes_updated_at BEFORE UPDATE ON classes
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_sessions_updated_at BEFORE UPDATE ON attendance_sessions
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- Create triggers only if they don't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_users_updated_at') THEN
+        CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_students_updated_at') THEN
+        CREATE TRIGGER update_students_updated_at BEFORE UPDATE ON students
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_classes_updated_at') THEN
+        CREATE TRIGGER update_classes_updated_at BEFORE UPDATE ON classes
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_sessions_updated_at') THEN
+        CREATE TRIGGER update_sessions_updated_at BEFORE UPDATE ON attendance_sessions
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
 
 -- ============================================
 -- SAMPLE DATA (For Testing)
